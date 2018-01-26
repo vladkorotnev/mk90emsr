@@ -1,0 +1,77 @@
+version 15, 2018/01/22
+
+- disassembler (relative address mode)
+
+
+version 14, 2010/12/17
+
+- debugger code cleanup in order to make it more portable
+- debugger invoked with the key F3 instead of F10, because F10 appears to be
+  by default reserved for the system to switch between windows
+- all file names converted to lower case
+
+
+version 13, 2010/07/18
+
+- the application priority changed from realtime to normal
+- fixed a bug causing the initial LCD contents to appear distorted at
+  increased speed of the emulated CPU
+
+
+version 11, 2009/12/25
+
+Changes and fixes of the CPU instruction set in order to conform to the
+test programs 791401, 791402, 691404:
+- the Stack Pointer register can take odd values
+- the instruction SXT clears the V flag
+- the instruction MFPS sets the flags as the instruction MOVB
+- the instructions ASH and ASHC treat the shifted value as signed
+- the instructions MUL and DIV set the V flag if the product or quotient
+  is outside the range -32768..+32767
+- the instructions JMP and JSR with a register as the destination cause
+  TRAP 04h instead of TRAP 08h
+
+
+version 09, 2009/09/23
+
+- selectable data size (byte/word) in the binary editor
+- an option to save the modified ROM image
+- more accurate RTC chip emulation
+- updated serial bus controller emulation
+- support for memory cards of size > 64kB
+
+
+version 08, 2009/08/10
+
+- selectable base of the numeral system used by the debugger
+- selectable RAM size
+
+
+version 07, 2008/02/11
+
+- added keyboard overlay
+
+
+version 06, 2007/10/24
+
+- fixed bug with the overflow flag calculation in the instructions ADD,
+  SUB, CMP, CMPB
+
+
+version 05, 2007/04/26
+
+- added support for an optional expansion ROM (the self-test launched
+  by pressing the key 'T' from the start menu should work now)
+
+
+version 04, 2007/03/22
+
+- eliminated I/O register write latency
+- added support for the display memory address register $E800
+- fixed a bug causing the program to crash when the emulated CPU was
+  ordered from the Debug Window to execute small count of instructions
+
+
+version 03, 2007/03/18
+
+- first public release
