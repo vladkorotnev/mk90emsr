@@ -59,7 +59,7 @@ begin
                 while Res = 0 do
                 begin
                   if (SRec.Attr and faDirectory <> faDirectory) then
-                    str := str + SRec.Name + chr(13);
+                    str := str + SRec.Name + chr(13) + chr(10);
                   Res := FindNext(SRec);
                 end;
               finally
@@ -149,6 +149,11 @@ begin
                       cmd := $00;
                   end;
            end;
+
+      $F2: begin { Stop emulation }
+              CloseFile(handle);
+              SmpOpen(device);
+          end;
 
      { End protocol for SMPEmu flash cart }
     end {case};
