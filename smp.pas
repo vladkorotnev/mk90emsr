@@ -25,6 +25,9 @@ implementation
       position: cardinal;
       mask: cardinal;
       cmd: byte;
+      str: string;
+      strpos: cardinal;
+      emufname: string;
     end;
 
   var
@@ -34,6 +37,8 @@ implementation
 procedure SmpOpen (device: word);
 var
   filename: string;
+  SRec: TSearchRec;
+                 Res: Integer;
 begin
   if device >= DEVICES then exit;
   filename := smpname[device];
@@ -47,6 +52,21 @@ begin
     size := cardinal(FileSize (handle));
     if size < $10000 then mask := $FFFF else mask := $FFFFFF;
     cmd := $00;
+    Res := FindFirst('sdcard\*.bin', faAnyfile, SRec);
+              str := '';
+              If Res = 0 then
+              try
+                while Res = 0 do
+                begin
+                  if (SRec.Attr and faDirectory <> faDirectory) then
+                    str := str + SRec.Name + chr(13);
+                  Res := FindNext(SRec);
+                end;
+              finally
+                FindClose(SRec);
+              end;
+              str := str + chr(0);
+              strpos := length(str); {donno why but otherwise 1 char is missed}
   end {with};
 end {SmpOpen};
 
@@ -78,7 +98,7 @@ begin
   with param[device] do
   begin
     if not exists then exit;
-    case cmd and $F0 of
+    case cmd and $FF of
       $00: begin		{Read Something}
              SmpData := $00;
            end;
@@ -88,8 +108,8 @@ begin
       $10, $D0: begin		{Read Data}
              if position < size then
              begin
-               Seek (handle, longint(position));
-               Read (handle, result);
+                Seek (handle, longint(position));
+                Read (handle, result);
              end {if};
              if (cmd and $80) = 0 then Dec (position) else Inc (position);
              position := position and mask;
@@ -103,6 +123,34 @@ begin
              if (cmd and $20) = 0 then Inc (position) else Dec (position);
              position := position and mask;
            end;
+     { Start protocol for SMPEmu flash cart }
+      $F0: begin { List files in card }
+             if strpos < length(str) then begin
+                 result := ord(str[strpos]);
+                 strpos := strpos + 1;
+             end
+             else begin
+                 strpos := 0;
+                 result := 0;
+             end;
+             emufname := '';
+           end;
+      $F1: begin { Set emulation file name }
+             if(x > 0) then emufname := emufname + chr(x)
+             else begin
+                      if exists then CloseFile(handle);
+                      exists := FileExists ('sdcard\'+emufname);
+                      if not exists then exit;
+                      AssignFile (handle, 'sdcard\'+emufname);
+                       Reset (handle);
+                      position := 0;
+                      size := cardinal(FileSize (handle));
+                    if size < $10000 then mask := $FFFF else mask := $FFFFFF;
+                      cmd := $00;
+                  end;
+           end;
+
+     { End protocol for SMPEmu flash cart }
     end {case};
   end {with};
 end {SmpData};

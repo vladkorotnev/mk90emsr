@@ -3,6 +3,7 @@ program MK90;
 uses
   Forms,
   Windows,
+            ThdTimer in 'Thdtimer.pas',
   Main in 'main.pas' {MainForm},
   Def in 'def.pas',
   Cpu in 'cpu.pas',
