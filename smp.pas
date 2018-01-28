@@ -59,13 +59,13 @@ begin
                 while Res = 0 do
                 begin
                   if (SRec.Attr and faDirectory <> faDirectory) then
-                    str := str + SRec.Name + chr(13) + chr(10);
+                    str := str + SRec.Name + chr(0);
                   Res := FindNext(SRec);
                 end;
               finally
                 FindClose(SRec);
               end;
-              str := str + chr(0);
+              str := str + chr(255);
               strpos := length(str); {donno why but otherwise 1 char is missed}
   end {with};
 end {SmpOpen};
@@ -92,6 +92,7 @@ end {SmpCmd};
 
 { reads or writes a data byte from/to the SMP, depending on the cmd }
 function SmpData (device: word; x: byte) : byte;
+  var i: integer;
 begin
   SmpData := $FF;
   if device >= DEVICES then exit;
@@ -131,7 +132,7 @@ begin
              end
              else begin
                  strpos := 0;
-                 result := 0;
+                 result := 255;
              end;
              emufname := '';
            end;
@@ -140,8 +141,15 @@ begin
              else begin
                       if exists then CloseFile(handle);
                       exists := FileExists ('sdcard\'+emufname);
-                      if not exists then exit;
+
                       AssignFile (handle, 'sdcard\'+emufname);
+                      if not exists then begin
+                        Rewrite(handle);
+                        for i:= 0 to 10000 do
+                          Write(handle, position);
+                        Seek(handle,0);
+                        exists := true;
+                      end;
                        Reset (handle);
                       position := 0;
                       size := cardinal(FileSize (handle));
